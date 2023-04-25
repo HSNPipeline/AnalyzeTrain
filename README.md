@@ -2,9 +2,12 @@
 
 Repository for analyzing the train task.
 
+[![Data](https://img.shields.io/badge/data-ConvertTrain-lightgrey)](https://github.com/HSUPipeline/ConvertTrain)
+[![Template](https://img.shields.io/badge/template-HSUPipeline/AnalyzeTEMPLATE-yellow.svg)](https://github.com/HSUPipeline/AnalyzeTEMPLATE)
+
 ## Overview
 
-This repository analyses data from the train task, a spatial navigation and memory task from the Jacobs lab, recorded with single-unit activity from human epilepsy patients. 
+This repository analyses data from the train task, a spatial navigation and memory task from the Jacobs lab, recorded with single-unit activity from human epilepsy patients.
 
 ## Requirements
 

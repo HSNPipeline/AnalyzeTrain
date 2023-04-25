@@ -4,3 +4,4 @@ matplotlib
 seaborn
 convnwb
 spiketools
+convnwb @ git+https://github.com/HSUPipeline/convnwb.git@main
