@@ -35,4 +35,39 @@ def plot_task_structure(trials, ax=None, **plt_kwargs):
                          line_kwargs={'lw' : 1.25},
                          ax=ax, **plt_kwargs)
     
+def plot_spikes_trial(spikes, tspikes, movement_spikes, mov_starts, mov_stops, tmov_stops,
+                      response_time, frs, title, hlines=None, **plt_kwargs):
+    """Plot the spike raster for whole session, navigation periods and individual trials."""
+
+    # Data orgs
+    ypos = (np.arange(len(tspikes))).tolist()
+
+    # Initialize grid
+    grid = make_grid(3, 2, width_ratios=[5, 1],
+                     wspace=0.1, hspace=0.2, figsize=(18, 20))
+
+    # Row 0: spikes across session
+    ax0 = get_grid_subplot(grid, 0, slice(0, 2))
+    plot_rasters(spikes, ax=ax0, show_axis=True, ylabel='spikes from whole session', yticks=[],
+                 title=create_heat_title('{}'.format(title), frs))
+    add_vlines(mov_stops, ax=ax0, color='purple')   # navigation starts
+    add_vlines(mov_starts, ax=ax0, color='orange')  # navigation stops
+
+    # Row 1: spikes from navigation periods
+    ax1 = get_grid_subplot(grid, 1, slice(0, 2))
+    plot_rasters(movement_spikes, vline=response_time, show_axis=True, ax=ax1,
+                 ylabel='Spikes from movement periods', yticks=[])
+
+    # Row 2: spikes across trials, with bar plot
+    ax2 = get_grid_subplot(grid, 2, 0)
+    ax2b = get_grid_subplot(grid, 2, 1, sharey=ax2)
+    plot_rasters(tspikes, show_axis=True, ax=ax2, xlabel='Spike times',
+                 ylabel="Trial number", yticks=range(0, len(tspikes)))
+    add_box_shades(tmov_stops, np.arange(len(tspikes)), x_range=0.1, y_range=0.5, ax=ax2)
+    plot_barh(frs, ypos, ax=ax2b, xlabel="FR")
+    #if hlines:
+    #    add_hlines(hlines, ax=ax2, color='green', alpha=0.4)
+
+    for cax in [ax0, ax1, ax2, ax2b]:
+        drop_spines(['top', 'right'], cax)
 
