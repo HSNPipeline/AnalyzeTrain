@@ -32,9 +32,10 @@ def plot_task_structure(trials, ax=None, **plt_kwargs):
                          [trials.start_time[:], trials.stop_time[:],trials.response_time[:]],
                          range_colors=['green', 'orange', 'purple','blue'],
                          line_colors=['red', 'black','grey'],
-                         line_kwargs={'lw' : 1.25},
+                         event_kwargs={'lw' : 1.25},
                          ax=ax, **plt_kwargs)
     
+
 def plot_spikes_trial(spikes, tspikes, movement_spikes, mov_starts, mov_stops, tmov_stops,
                       response_time, frs, title, hlines=None, **plt_kwargs):
     """Plot the spike raster for whole session, navigation periods and individual trials."""
@@ -50,6 +51,7 @@ def plot_spikes_trial(spikes, tspikes, movement_spikes, mov_starts, mov_stops, t
     ax0 = get_grid_subplot(grid, 0, slice(0, 2))
     plot_rasters(spikes, ax=ax0, show_axis=True, ylabel='spikes from whole session', yticks=[],
                  title=create_heat_title('{}'.format(title), frs))
+
     add_vlines(mov_stops, ax=ax0, color='purple')   # navigation starts
     add_vlines(mov_starts, ax=ax0, color='orange')  # navigation stops
 
@@ -63,6 +65,7 @@ def plot_spikes_trial(spikes, tspikes, movement_spikes, mov_starts, mov_stops, t
     ax2b = get_grid_subplot(grid, 2, 1, sharey=ax2)
     plot_rasters(tspikes, show_axis=True, ax=ax2, xlabel='Spike times',
                  ylabel="Trial number", yticks=range(0, len(tspikes)))
+
     add_box_shades(tmov_stops, np.arange(len(tspikes)), x_range=0.1, y_range=0.5, ax=ax2)
     plot_barh(frs, ypos, ax=ax2b, xlabel="FR")
     #if hlines:
