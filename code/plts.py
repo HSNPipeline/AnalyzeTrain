@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from spiketools.plts.task import plot_task_structure as _plot_task_structure
 from spiketools.plts.trials import plot_rasters
 from spiketools.plts.data import plot_barh
-from spiketools.plts.spatial import create_heat_title
+from spiketools.plts.spatial import create_heatmap_title
 from spiketools.plts.utils import check_ax, savefig, make_grid, get_grid_subplot
 from spiketools.plts.style import set_plt_kwargs, drop_spines
 from spiketools.plts.annotate import add_vlines, add_box_shades, add_hlines
@@ -73,4 +73,22 @@ def plot_spikes_trial(spikes, tspikes, movement_spikes, mov_starts, mov_stops, t
 
     for cax in [ax0, ax1, ax2, ax2b]:
         drop_spines(['top', 'right'], cax)
+        
+        
+def plot_positions_with_speed(raw_ptimes, positions, speed, speed_thresh,ax=None):
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(16, 5))
+    filtered_speed_indx = np.where(speed <= speed_thresh)[0]
+    
+    # Plot all positions on the provided ax with a basic color (e.g., blue)
+    ax.plot(raw_ptimes, positions, alpha=0.5)
+
+    # Highlight positions with filtered speeds using a different color (e.g., red)
+    ax.scatter(raw_ptimes[filtered_speed_indx], positions[filtered_speed_indx],s=5, color='green',alpha=0.5, label='Filtered Positions')
+
+    # Add labels, legend to the ax
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Positions')
+    ax.set_title('Positions with Speed Threshold')
+    
 
