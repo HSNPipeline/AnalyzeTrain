@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from spiketools.plts.task import plot_task_structure as _plot_task_structure
 from spiketools.plts.trials import plot_rasters
 from spiketools.plts.data import plot_barh
-from spiketools.plts.spatial import create_heatmap_title
+from spiketools.plts.spatial import plot_position_by_time,plot_heatmap,create_heatmap_title
 from spiketools.plts.utils import check_ax, savefig, make_grid, get_grid_subplot
 from spiketools.plts.style import set_plt_kwargs, drop_spines
 from spiketools.plts.annotate import add_vlines, add_box_shades, add_hlines
@@ -50,7 +50,7 @@ def plot_spikes_trial(spikes, tspikes, movement_spikes, mov_starts, mov_stops, t
     # Row 0: spikes across session
     ax0 = get_grid_subplot(grid, 0, slice(0, 2))
     plot_rasters(spikes, ax=ax0, show_axis=True, ylabel='spikes from whole session', yticks=[],
-                 title=create_heat_title('{}'.format(title), frs))
+                 title=create_heatmap_title('{}'.format(title), frs))
 
     add_vlines(mov_stops, ax=ax0, color='purple')   # navigation starts
     add_vlines(mov_starts, ax=ax0, color='orange')  # navigation stops
