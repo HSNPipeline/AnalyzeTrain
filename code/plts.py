@@ -25,7 +25,7 @@ def plot_task_structure(trials, ax=None, **plt_kwargs):
         The TreasureHunt trials structure from a NWB file.
     """
 
-    _plot_task_structure([[trials.hold_start_time[:], trials.hold_stop_time[:]],
+    _plot_task_structure([[trials.cue_start_time[:], trials.cue_stop_time[:]],
                           [trials.movement_start_time[:], trials.movement_stop_time[:]],
                           [trials.fixation_start_time[:], trials.fixation_stop_time[:]],
                           [trials.feedback_start_time[:],trials.feedback_stop_time[:]]],

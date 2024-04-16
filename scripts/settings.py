@@ -24,8 +24,8 @@ RUN = {
 ## PATHS
 
 # Set the data path to load from
-BASE_PATH = Path('')
-DATA_PATH = BASE_PATH / 'NWB'
+BASE_PATH = Path('/Users/weijiazhang/Data/Train')
+DATA_PATH = BASE_PATH / 'nwb'
 
 # Set the path to save out reports & results
 REPORTS_PATH = Path('../reports/')
@@ -54,8 +54,11 @@ UNITS = {
 
 ###################################################################################################
 ## METHOD SETTINGS
+PLACE_METHODS = ['ANOVA','info']
+METHODS = {
+'PLACE': PLACE_METHODS
 
-...
+}
 
 ###################################################################################################
 ## ANALYSIS SETTINGS
@@ -64,7 +67,7 @@ UNITS = {
 
 # SURROGATE SETTINGS
 
-SHUFFLE_APPROACH = 'CIRCULAR'   # 'CIRCULAR', 'BINCIRC'
+SHUFFLE_APPROACH = 'isi'   # 'CIRCULAR', 'BINCIRC'
 N_SHUFFLES = 25
 
 SURROGATES = {
