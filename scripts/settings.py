@@ -6,7 +6,7 @@ from pathlib import Path
 ## RUN SETTINGS
 
 # Set which task to process
-TASK = ''
+TASK = 'Train'
 
 # Set files to ignore
 IGNORE = []
@@ -28,8 +28,8 @@ BASE_PATH = Path('/Users/weijiazhang/Data/Train')
 DATA_PATH = BASE_PATH / 'nwb'
 
 # Set the path to save out reports & results
-REPORTS_PATH = Path('../reports/')
-RESULTS_PATH = Path('../results/')
+REPORTS_PATH = Path(BASE_PATH/'reports')
+RESULTS_PATH = Path(BASE_PATH/'results')
 
 PATHS = {
     'BASE' : BASE_PATH,
@@ -44,7 +44,7 @@ PATHS = {
 # Set whether to skip units that have already been processed
 SKIP_ALREADY_RUN = False
 SKIP_FAILED = False
-CONTINUE_ON_FAIL = False
+CONTINUE_ON_FAIL = True
 
 UNITS = {
     'SKIP_ALREADY_RUN' : SKIP_ALREADY_RUN,
@@ -68,7 +68,8 @@ METHODS = {
 # SURROGATE SETTINGS
 
 SHUFFLE_APPROACH = 'isi'   # 'CIRCULAR', 'BINCIRC'
-N_SHUFFLES = 25
+N_SHUFFLES = 100
+
 
 SURROGATES = {
     'approach' : SHUFFLE_APPROACH,
