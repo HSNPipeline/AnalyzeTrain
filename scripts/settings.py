@@ -11,6 +11,10 @@ TASK = 'Train'
 # Set files to ignore
 IGNORE = []
 
+# Run specific 
+RUN_SPECIFIC = [
+]
+
 # Set verboseness
 VERBOSE = True
 
@@ -54,7 +58,7 @@ UNITS = {
 
 ###################################################################################################
 ## METHOD SETTINGS
-PLACE_METHODS = ['ANOVA','info']
+PLACE_METHODS = ['ANOVA','INFO']
 METHODS = {
 'PLACE': PLACE_METHODS
 
@@ -62,8 +66,41 @@ METHODS = {
 
 ###################################################################################################
 ## ANALYSIS SETTINGS
+## SPATIAL BIN SETTINGS
 
-...
+PLACE_BINS = 20
+# DISTANCE_BINS = [47]
+# NBINS_STEM = 4
+# STEM_BIN_RANGE = [-131, -35]
+
+BINS = {
+    'place' : PLACE_BINS,
+#     'distance' : DISTANCE_BINS,
+#     'nbins_stem' : NBINS_STEM,
+#     'stem_bin_range' : STEM_BIN_RANGE,
+}
+
+## OCCUPANCY & PLACE BIN SETTINGS
+
+OCC_MINIMUM = .1
+OCC_SETNAN = True
+
+MIN_SPEED = .2
+MAX_TIME = 0.8
+TIME_THRESHOLD = .1
+
+OCCUPANCY = {
+    'minimum' : OCC_MINIMUM,
+    'set_nan' : OCC_SETNAN,
+    'min_speed' : MIN_SPEED,
+    'max_time' : MAX_TIME,
+}
+
+PLACE = {
+    'min_speed' : MIN_SPEED,
+    'time_threshold' :TIME_THRESHOLD,
+}
+
 
 # SURROGATE SETTINGS
 
