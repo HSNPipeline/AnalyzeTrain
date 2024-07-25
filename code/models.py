@@ -4,22 +4,26 @@ from spiketools.stats.anova import create_dataframe, create_dataframe_bins, fit_
 from spiketools.spatial.information import compute_spatial_information
 ###################################################################################################
 ###################################################################################################
-PLACE = {
+PLACE_MODELS = {
     'MODEL' : 'fr ~ C(bin)',
     'FEATURE' : 'C(bin)',
     'COLUMNS' : ['bin', 'fr']
 }
 
-create_df_place = partial(create_dataframe_bins,bin_columns=PLACE['COLUMNS'])
-fit_anova_place = partial(fit_anova, formula=PLACE['MODEL'], feature=PLACE['FEATURE'])
+create_df_place = partial(create_dataframe_bins,bin_columns=PLACE_MODELS['COLUMNS'])
+fit_anova_place = partial(fit_anova, formula=PLACE_MODELS['MODEL'], feature=PLACE_MODELS['FEATURE'])
 
 
-# PLACE_MODELS = {
-#     'MODEL' : 'fr ~ C(bin)',
-#     'FEATURE' : 'C(bin)',
-#     'COLUMNS' : ['bin', 'fr']
-# }
+## CHEST & MEMORY RESPONSE MODELS
 
-# create_df_place = partial(create_dataframe_bins, bin_columns=PLACE_MODELS['COLUMNS'])
-# fit_anova_place = partial(fit_anova, formula=PLACE_MODELS['MODEL'],
-#                           feature=PLACE_MODELS['FEATURE'])
+OBJECT_MODELS = {
+    #'MODEL' : 'fr ~ C(tbin) + C(side) + C(tbin):C(side)',
+    #'FEATURE' : 'C(tbin):C(side)',
+    'MODEL' : 'fr ~ C(tbin) + C(object)',
+    'FEATURE' : 'C(tbin)',
+    'COLUMNS' : ['tbin', 'fr']
+}
+
+create_df_object = partial(create_dataframe_bins, bin_columns=OBJECT_MODELS['COLUMNS'])
+fit_anova_object = partial(fit_anova, formula=OBJECT_MODELS['MODEL'],
+                          feature=OBJECT_MODELS['FEATURE'])
