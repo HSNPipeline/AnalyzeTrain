@@ -1,4 +1,4 @@
-"""Analysis script: T3 unit analysis."""
+"""Analysis script: Train unit analysis."""
 
 import warnings
 
