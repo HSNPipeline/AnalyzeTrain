@@ -9,7 +9,10 @@ from pathlib import Path
 TASK = 'Train'
 
 # Set files to ignore
-IGNORE = []
+IGNORE = ['TRAIN_R1027J_session_0.nwb',
+          'TRAIN_R1027J_session_1.nwb',
+          'TRAIN_R1030J_session_0.nwb',
+          'TRAIN_R1030J_session_2.nwb' ]
 
 # Run specific 
 RUN_SPECIFIC = [
@@ -68,7 +71,7 @@ METHODS = {
 ## ANALYSIS SETTINGS
 ## SPATIAL BIN SETTINGS
 
-PLACE_BINS = 20
+PLACE_BINS = 40
 # DISTANCE_BINS = [47]
 # NBINS_STEM = 4
 # STEM_BIN_RANGE = [-131, -35]
@@ -85,16 +88,24 @@ BINS = {
 OCC_MINIMUM = .1
 OCC_SETNAN = True
 
-MIN_SPEED = .2
-MAX_TIME = 0.8
+MIN_SPEED = 2
+MAX_TIME = 0.25
 TIME_THRESHOLD = .1
 
+## Note: min_time and max_time is different from minimim 
 OCCUPANCY = {
     'minimum' : OCC_MINIMUM,
     'set_nan' : OCC_SETNAN,
     'min_speed' : MIN_SPEED,
     'max_time' : MAX_TIME,
 }
+
+OCCUPANCY_TRIAL = {
+    'set_nan' : OCC_SETNAN,
+    'min_speed' : MIN_SPEED,
+    'max_time' : MAX_TIME,
+}
+
 
 PLACE = {
     'min_speed' : MIN_SPEED,
@@ -104,7 +115,7 @@ PLACE = {
 
 # SURROGATE SETTINGS
 
-SHUFFLE_APPROACH = 'isi'   # 'CIRCULAR', 'BINCIRC'
+SHUFFLE_APPROACH = 'CIRCULAR'   # 'CIRCULAR', 'BINCIRC'
 N_SHUFFLES = 100
 
 

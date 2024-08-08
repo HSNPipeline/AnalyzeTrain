@@ -14,7 +14,6 @@ create_df_place = partial(create_dataframe_bins,bin_columns=PLACE_MODELS['COLUMN
 fit_anova_place = partial(fit_anova, formula=PLACE_MODELS['MODEL'], feature=PLACE_MODELS['FEATURE'])
 
 
-## CHEST & MEMORY RESPONSE MODELS
 
 OBJECT_MODELS = {
     #'MODEL' : 'fr ~ C(tbin) + C(side) + C(tbin):C(side)',

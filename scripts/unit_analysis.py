@@ -1,7 +1,7 @@
 """Analysis script: Train unit analysis."""
 
 import warnings
-
+import os
 import numpy as np
 
 from convnwb.io import load_nwbfile, save_json
@@ -65,7 +65,10 @@ def main():
     # Define output folders
     results_folder = PATHS['RESULTS'] / 'units'
     reports_folder = PATHS['REPORTS'] / 'units'
-    print(reports_folder)
+   
+    os.makedirs(results_folder, exist_ok=True)
+    os.makedirs(reports_folder, exist_ok=True)
+    os.makedirs(results_folder / 'zFailed', exist_ok=True)
     # Collect a copy of all settings with a prefixes
     all_settings = [
         add_key_prefix(BINS, 'bins'),
@@ -222,9 +225,10 @@ def main():
                 
                 # PLOTS 
                 s_bins = np.linspace(area_range[0], area_range[1], BINS['place']+1)
-                Place_bins = np.mean(trial_fr, axis=0)
-                place_std = np.std(trial_fr, axis=0)
-                place_n= trial_fr.shape[0]
+                t_fr = np.nan_to_num(trial_fr, nan=0.0)
+                Place_bins = np.mean(t_fr, axis=0)
+                place_std = np.std(t_fr, axis=0)
+                place_n= t_fr.shape[0]
                 place_sem = place_std  / np.sqrt(place_n)
 
 
