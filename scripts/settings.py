@@ -83,6 +83,10 @@ BINS = {
 #     'stem_bin_range' : STEM_BIN_RANGE,
 }
 
+EXCLUSION = {
+    'zscore': 3.29
+
+}
 ## OCCUPANCY & PLACE BIN SETTINGS
 
 OCC_MINIMUM = .1
