@@ -61,9 +61,10 @@ UNITS = {
 
 ###################################################################################################
 ## METHOD SETTINGS
-PLACE_METHODS = ['ANOVA','INFO']
+PLACE_METHODS = ['ANOVA','INFO','Z_SCORE']
 METHODS = {
 'PLACE': PLACE_METHODS
+
 
 }
 
