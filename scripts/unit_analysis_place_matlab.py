@@ -64,8 +64,8 @@ def main():
     print_status(RUN['VERBOSE'], '\n\nANALYZING UNIT DATA - {}\n\n'.format(RUN['TASK']), 0)
 
     # Define output folders
-    results_folder = PATHS['RESULTS'] / 'units_matlab'
-    reports_folder = PATHS['REPORTS'] / 'units_matlab'
+    results_folder = PATHS['RESULTS'] / 'units_matlab_sensitivitycheck'
+    reports_folder = PATHS['REPORTS'] / 'units_matlab_sensitivitycheck'
    
     os.makedirs(results_folder, exist_ok=True)
     os.makedirs(reports_folder, exist_ok=True)
@@ -75,7 +75,7 @@ def main():
     epochSize = 0.1
     numBins = 40
     kernelSize = 8
-    numBinsPos = 40
+    numBinsPos = numBins
     
     data_files = get_files(PATHS['DATA'], select='mat')
    
@@ -103,6 +103,8 @@ def main():
             df[col] = df[col].str[0].astype(int)
         for col in float_cols:
             df[col] = df[col].str[0].astype(float)
+
+        
 
         behavioral_data = df
 
@@ -169,32 +171,65 @@ def main():
 #             print_status(RUN['VERBOSE'], 'running unit: \t\t\tU{:02d}'.format(unit_ind), 1)
 
             try:
+                spike_name = data['events']['spikeData'][0][0]['spikeNames'][0][0][0][unit_ind]
+                print(f"Spike name: {spike_name}")
+
+                # Create DataFrame of electrode labels and clean up types
+                elec_labels = pd.DataFrame(data['events']['spikeData'][0][0]['elecLabels'][0][0][0])
+                elec_labels['ElectrodeID'] = elec_labels['ElectrodeID'].str[0].astype(int)
+                elec_labels['Label'] = elec_labels['Label'].str[0].astype(str)
+                elec_labels = elec_labels[elec_labels['Label'] != 'ainp1']
+
+                # Find matching electírode label
+                label = None
+                for idx, elec_id in enumerate(elec_labels['ElectrodeID'].values):
+                    if str(elec_id) in str(spike_name):
+                        label = elec_labels['Label'].iloc[idx]
+                        break
                 units_fr = events_fr[:,unit_ind]
 
                 # Calculate firing rates with additional checks
-                trial_place_bins = compute_trial_firing_rates(trial_bin, pos_bin, units_fr, edges_trial, edges_pos, trial_occupancy, kernelSize, epochSize)
+                trial_place_bins,trial_fr = compute_trial_firing_rates(trial_bin, pos_bin, units_fr, edges_trial, edges_pos, trial_occupancy, kernelSize, epochSize)
                 place_bins = np.nanmean(trial_place_bins,axis = 0)
                 place_sem = np.nanstd(trial_place_bins,axis = 0)/np.sqrt(trial_place_bins.shape[0])
+
+                fr_bins = np.nanmean(trial_fr,axis = 0)
+                fr_sem = np.nanstd(trial_fr,axis = 0)/np.sqrt(trial_fr.shape[0])
 
                 s_bins = np.linspace(0, 40, numBinsPos+1)
 
                 results = {}
                 results['unit_ind'] = unit_ind
                 results['session_id'] = filename
+                results['label'] = str(label) if label is not None else None
+                results['spike_name'] = str(spike_name) if spike_name is not None else None
                 
                 results['place_bins'] = place_bins.tolist()
-                results['place_bins_trial'] = trial_place_bins.tolist()
+                results['trial_place_bins'] = trial_place_bins.tolist()
                 results['place_sem'] = place_sem.tolist()
+
+
+                results['trial_fr'] = trial_fr.tolist()
+                results['fr_bins'] = fr_bins.tolist()
+                results['fr_sem'] = fr_sem.tolist()
+
                 results['s_bins'] = s_bins.tolist()
 
+                results['fr_bins'] = fr_bins.tolist()
+                results['fr_sem'] = fr_sem.tolist()
+
                 results['place_info'] = compute_spatial_information(place_bins[:-3], occ[:-3], normalize=False)
-                print(results['place_info'])
+                results['place_fr_info'] = compute_spatial_information(fr_bins[:-3], occ[:-3], normalize=False)
+                #print(results['place_info'])
 
                 # Create the dataframe
                 df = create_df_place(trial_place_bins[:,:-3])
                 results['place_anova']= fit_anova_place(df)
+
+                df_fr = create_df_place(trial_fr[:,:-3])
+                results['place_fr_anova']= fit_anova_place(df_fr)
                 # Check the computed place F-value
-                print('The ANOVA place F-value is {:4.2f}'.format(results['place_anova']))
+                #print('The ANOVA place F-value is {:4.2f}'.format(results['place_anova']))
                 shuffles = circular_shuffle_unit_fr(units_fr, SURROGATES['n_shuffles'])
                 
                 surr_analyses = create_methods_list(METHODS)
@@ -203,24 +238,30 @@ def main():
                 
                 for ind, shuffle in enumerate(shuffles):
                     #surr_place_bins = compute_firing_rates(shuffle, pos_bin, occ, g, numBins, epochSize)
-                    surr_trial_place_bins = compute_trial_firing_rates(trial_bin, pos_bin, shuffle, edges_trial, edges_pos, trial_occupancy, kernelSize, epochSize)
+                    surr_trial_place_bins, surr_trial_fr = compute_trial_firing_rates(trial_bin, pos_bin, shuffle, edges_trial, edges_pos, trial_occupancy, kernelSize, epochSize)
                     surr_place_bins= np.nanmean(surr_trial_place_bins,axis = 0)
                     surrs['place_info'][ind] = compute_spatial_information(surr_place_bins[:-3], occ[:-3], normalize=False)
                     surrs['place_anova'][ind] = fit_anova_place(create_df_place(surr_trial_place_bins[:,:-3]))
+                    #surr_trial_fr = compute_trial_firing_rates(trial_bin, pos_bin, shuffle, edges_trial, edges_pos, trial_occupancy, kernelSize, epochSize)
+                    surr_fr_bins = np.nanmean(surr_trial_fr,axis = 0)
+                    surrs['place_fr_info'][ind] = compute_spatial_information(surr_fr_bins[:-3], occ[:-3], normalize=False)
+                    surrs['place_fr_anova'][ind] = fit_anova_place(create_df_place(surr_trial_fr[:,:-3]))
                 
                 for analysis in surr_analyses:
                     results[analysis + '_surr_p_val'], results[analysis + '_surr_z_score'] = \
                             compute_surrogate_stats(results[analysis], surrs[analysis],title = analysis)
-
+                #print(results)
                 save_json(results, filename+'_U'+str(unit_ind).zfill(2) + '.json', folder=results_folder)
 
                 plt.rcParams.update({'font.size': 20})
-                grid = make_grid(3, 6, wspace=.8, hspace=.8, figsize=(30, 10),
-                                    height_ratios=[1,1, 1.2],title = filename+'_U'+str(unit_ind).zfill(2))
+                grid = make_grid(6, 7, wspace=.8, hspace=1, figsize=(30, 20),
+                                    title = filename+'_U'+str(unit_ind).zfill(2))
 
                 #plt.rcParams.update({'font.size': 25})
                 SI = results['place_info']
                 F = results['place_anova']
+                SI_fr = results['place_fr_info']
+                F_fr = results['place_fr_anova']
                 # ax = get_grid_subplot(grid, 0, slice(0,2))
                 # plot_rasters(spike_pos,ax = ax, vline=None, figsize=(10, 5),color = 'red',alpha =.3, show_axis=True, title='Forward Trials')
                 # ax.set_xticklabels([])
@@ -231,10 +272,19 @@ def main():
                 ax = get_grid_subplot(grid, slice(1,3), slice(0,2))
                 ax.plot( s_bins[:-1], place_bins, color = 'red', label='Mean Value')
                 ax.fill_between( s_bins[:-1], place_bins - place_sem, place_bins+ place_sem, color = 'red', alpha=0.1)
-                add_vlines(37, ax, color='red', linestyle='solid', linewidth=4)
+                add_vlines(37, ax, color='black', linestyle='solid', linewidth=4)
                 ax.set_xlabel('Position on Virtual Track (cm)')
                 ax.set_ylabel('Firing Rate')
                 ax.set_title(f' SI: {np.round(SI,2)}   F: {np.round(F,2)}')
+                drop_spines(['top','right'],ax = ax)
+
+                ax = get_grid_subplot(grid, slice(3,5), slice(0,2))
+                ax.plot( s_bins[:-1], fr_bins, color = 'red', label='Mean Value')
+                ax.fill_between( s_bins[:-1], fr_bins - fr_sem, fr_bins+ fr_sem, color = 'red', alpha=0.1)
+                add_vlines(37, ax, color='black', linestyle='solid', linewidth=4)
+                ax.set_xlabel('Firing Rate')
+                ax.set_ylabel('Firing Rate')
+                ax.set_title(f' SI: {np.round(SI_fr,2)}   F: {np.round(F_fr,2)}')
                 drop_spines(['top','right'],ax = ax)
 
                 ax = get_grid_subplot(grid, 1, 2)
@@ -257,8 +307,33 @@ def main():
                 ax.set_ylabel('count')
                 drop_spines(['top', 'right'],ax)
 
-                ax = get_grid_subplot(grid, slice(1,3), slice(3,5))
+                ax = get_grid_subplot(grid, 3, 2)
+                P = results['place_fr_info_surr_p_val']
+                plot_surrogates(surrs['place_fr_info'], data_value=SI_fr, p_value=None, title=f'P = {P}',
+                                                    title_color=color_pvalue(P),ax = ax,alpha = .6,color = 'grey')
+                add_vlines(SI_fr , ax, color='darkred', linestyle='solid', linewidth=4)
+                ax.plot(SI_fr , 0, 'o', zorder=10, clip_on=False, color='darkred', markersize=10)
+                ax.set_xlabel('Spike Info')
+                ax.set_ylabel('count')
+                drop_spines(['top', 'right'],ax)
+
+                ax = get_grid_subplot(grid, 4, 2)
+                P = results['place_fr_anova_surr_p_val']
+                plot_surrogates(surrs['place_fr_anova'], data_value=F_fr, p_value=None ,title=f'P = {P}',
+                                                    title_color=color_pvalue(P),ax = ax,alpha = .6,color = 'grey')
+                add_vlines(F_fr , ax, color='darkred', linestyle='solid', linewidth=4)
+                ax.plot(F_fr , 0, 'o', zorder=10, clip_on=False, color='darkred', markersize=10)
+                ax.set_xlabel('F - Statistics')
+                ax.set_ylabel('count')
+                drop_spines(['top', 'right'],ax)
+
+
+                ax = get_grid_subplot(grid, slice(1,5), slice(3,6))
                 plot_heatmap(trial_place_bins, cbar=True,title= create_heatmap_title('Place bins', trial_place_bins), ax=ax)
+
+
+                # ax = get_grid_subplot(grid, slice(1,3), slice(3,5))
+                # plot_heatmap(trial_place_bins, cbar=True,title= create_heatmap_title('Place bins', trial_place_bins), ax=ax)
                 name = filename+'_U'+str(unit_ind).zfill(2)
                 save_figure(name + '.pdf', reports_folder, close=True)
             #save_figure(grid, PATHS['REPORTS'] / filename / ('U' + str(unit_ind).zfill(2) + '.pdf'))

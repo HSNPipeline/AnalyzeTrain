@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr, ttest_ind
 from scipy import signal
+from scipy.ndimage import label
 from convnwb.io import load_nwbfile
 
 #from spiketools.utils.data import make_row_orientation
@@ -143,8 +144,10 @@ def compute_trial_firing_rates(trial_bin, pos_bin, units_fr, edges_trial, edges_
     # Calculate firing rates and mask low occupancy bins
     trial_place_bins = smoothed_trials/smoothed_time_trials # get the "pure firing rate"
     trial_place_bins[smoothed_time_trials < 0.1] = np.nan
+
+    trial_fr = trial_spikes/trial_occupancy
     
-    return trial_place_bins
+    return trial_place_bins, trial_fr
 
 def circular_shuffle_unit_fr(units_fr, n_shuffles=1000):
     """
@@ -172,3 +175,147 @@ def circular_shuffle_unit_fr(units_fr, n_shuffles=1000):
         shuffled[i] = np.roll(units_fr, shift)
         
     return shuffled
+
+def get_significant_percentage(stats_vals,p_vals,increment,threshold = 0.05):
+
+    ## Calculate the number of steps
+    # Remove NaN values
+    valid_mask = ~np.isnan(stats_vals)
+    stats_vals = stats_vals[valid_mask]
+    p_vals = p_vals[valid_mask]
+    
+    max_value = int(np.max(stats_vals))+1
+    n_step = int(max_value/increment)
+    categories = []
+    significant_percentages = []
+    for i in range(n_step):
+        lower_bound = i*increment
+        upper_bound = (i+1)*increment
+
+        # Find indices and compute percentage of significant p values
+        indx_in_category = np.where((stats_vals >=lower_bound)& (stats_vals < upper_bound))[0]
+        if len(indx_in_category) > 0:
+            p_vals_in_category = p_vals[indx_in_category]
+            significant_p_vals = p_vals_in_category[p_vals_in_category<threshold]
+
+            n_significant_p_vals = len(significant_p_vals)
+            significant_percentage = (n_significant_p_vals / len(p_vals_in_category)) * 100
+            category = upper_bound
+        else:
+            significant_percentage = None
+            category = None
+        
+        significant_percentages.append(significant_percentage)
+        categories.append(category)
+    return categories,significant_percentages
+
+
+def get_agreement_percentage(stats, p_values1, p_values2, increment=0.2,threshold = 0.05):
+    """
+    Calculate the percentage of agreement between two sets of p-values.
+    """
+    # Remove NaN values
+    valid_mask = ~np.isnan(stats)
+    stats = stats[valid_mask]
+    p_values1 = p_values1[valid_mask]
+    p_values2 = p_values2[valid_mask]
+
+    if len(stats) == 0:
+        return [], [], [], []
+
+    max_value = int(np.max(stats)) + 1
+    num_steps = int(max_value / increment)
+    categories = []
+    agreement_percentages = []
+    significant_percentages = []
+    not_significant_percentages  = []
+
+    for i in range(num_steps):  # Loop over increments
+        lower_bound = i * increment
+        upper_bound = (i + 1) * increment
+        categories.append(upper_bound)
+        indices_in_category = np.where((stats >= lower_bound) & (stats < upper_bound))[0]
+
+        if len(indices_in_category) > 0:
+            p_values1_in_category = p_values1[indices_in_category]
+            p_values2_in_category = p_values2[indices_in_category]
+
+            significant_indices = (p_values1_in_category < threshold) & (p_values2_in_category < threshold)
+            not_significant_indices = (p_values1_in_category > threshold) & (p_values2_in_category > threshold)
+
+            n_agree = np.sum(significant_indices)+np.sum(not_significant_indices)  # Count significant values
+
+            # Calculate percentage
+            agreement_percentages.append(n_agree / len(indices_in_category) * 100)
+            significant_percentages.append(np.sum(significant_indices) / len(indices_in_category) * 100)
+            not_significant_percentages.append(np.sum(not_significant_indices) / len(indices_in_category) * 100)
+        else:
+            agreement_percentages.append(None)
+            significant_percentages.append(None)
+            not_significant_percentages.append(None)
+    return categories, agreement_percentages, significant_percentages, not_significant_percentages
+
+def find_place_field(rate_map, place_field_thresh=0.2, noise_thresh=0.2):
+    """
+    Identify contiguous regions of high firing rates above a threshold, and remove noisy regions below a threshold.
+    
+    Parameters:
+    - rate_map: 2D array representing the spatial firing rate map.
+    - place_field_thresh: Fraction of the peak firing rate used for thresholding (e.g., 0.2).
+    - noise_thresh: Threshold below which regions are considered noise and excluded.
+    
+    Returns:
+    - place_field_mask: Binary map of the identified place fields (True for regions above the threshold).
+    - place_bins_passed_thresh: Number of bins above the place field threshold.
+    - labeled_fields: 2D array where each contiguous region above the threshold is labeled with a unique integer.
+    - num_fields: Number of contiguous place fields found.
+    - peak_rate: Peak firing rate used for thresholding.
+    """
+    # Find the peak firing rate in the rate map
+    peak_rate = np.max(rate_map)
+    peak_loc = np.argmax(rate_map)
+    
+    # Define the threshold value (fraction of peak firing rate)
+    place_field_thresh_value = place_field_thresh * peak_rate
+    noise_thresh_value = noise_thresh*peak_rate
+    
+    # Create a binary mask of regions with firing rates above the threshold
+    place_field_mask = rate_map >= place_field_thresh_value
+    
+    # Apply the noise threshold: Remove regions where firing rate is below the noise threshold
+    noise_mask = rate_map < noise_thresh_value
+    
+    
+    # Count how many bins (or regions) passed the combined threshold
+    num_place_field_bins = place_field_mask.sum()
+    num_noise_bins = noise_mask.sum()
+    
+    # Label contiguous regions above the threshold
+    labeled_place_fields, num_place_fields = label(place_field_mask)
+    
+    # Return all the relevant information
+    return num_place_field_bins,num_noise_bins, labeled_place_fields, num_place_fields, peak_rate,peak_loc
+
+
+def find_place_location(trial_place_bins, peak_loc, tolerance=1):
+    max_locs = []  # List to store the indices of max values
+    max_values = []  # List to store the max values
+          
+    for indx, trial in enumerate(trial_place_bins):
+        # Find the index of the maximum value in the trial
+        max_index = np.argmax(trial)
+        max_value = np.max(trial)
+        
+        # Store the results
+        max_locs.append(max_index)
+        max_values.append(max_value)
+
+    max_locs = np.array(max_locs)
+    max_values = np.array(max_values)
+
+    # Compute the number of max_locs close to the peak_loc within a given tolerance
+    close_to_peak = np.abs(max_locs - peak_loc) <= tolerance
+    num_close_to_peak = np.sum(close_to_peak)
+    percentage_num_close_to_peak = num_close_to_peak/len(trial_place_bins)
+    
+    return max_locs, max_values, num_close_to_peak,percentage_num_close_to_peak

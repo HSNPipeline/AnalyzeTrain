@@ -3,6 +3,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+
+from spiketools.plts.utils import check_ax, get_kwargs, savefig
+from spiketools.plts.settings import SET_KWARGS, OTHER_KWARGS
+from spiketools.plts.style import set_plt_kwargs
+
+
 from spiketools.plts.task import plot_task_structure as _plot_task_structure
 from spiketools.plts.trials import plot_rasters
 from spiketools.plts.data import plot_barh
@@ -90,5 +97,19 @@ def plot_positions_with_speed(raw_ptimes, positions, speed, speed_thresh,ax=None
     ax.set_xlabel('Time')
     ax.set_ylabel('Positions')
     ax.set_title('Positions with Speed Threshold')
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+from spiketools.plts.utils import check_ax, get_kwargs, savefig
+from spiketools.plts.settings import SET_KWARGS, OTHER_KWARGS
+from spiketools.plts.style import set_plt_kwargs
+
+@set_plt_kwargs
+def plot_percentages(steps,percentages,ax= None,**plt_kwargs):
+    ax = check_ax(ax,figsize = plt_kwargs.pop('figsize',None))
+    ax.plot(steps,percentages,**plt_kwargs)
     
 
