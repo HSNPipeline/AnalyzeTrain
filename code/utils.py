@@ -255,7 +255,7 @@ def get_agreement_percentage(stats, p_values1, p_values2, increment=0.2,threshol
             not_significant_percentages.append(None)
     return categories, agreement_percentages, significant_percentages, not_significant_percentages
 
-def find_place_field(rate_map, place_field_thresh=0.2, noise_thresh=0.2):
+def find_place_field(rate_map, place_field_thresh=0.5, noise_thresh=0.5):
     """
     Identify contiguous regions of high firing rates above a threshold, and remove noisy regions below a threshold.
     
@@ -297,7 +297,7 @@ def find_place_field(rate_map, place_field_thresh=0.2, noise_thresh=0.2):
     return num_place_field_bins,num_noise_bins, labeled_place_fields, num_place_fields, peak_rate,peak_loc
 
 
-def find_place_location(trial_place_bins, peak_loc, tolerance=1):
+def find_place_location(trial_place_bins, peak_loc, tolerance=3):
     max_locs = []  # List to store the indices of max values
     max_values = []  # List to store the max values
           
