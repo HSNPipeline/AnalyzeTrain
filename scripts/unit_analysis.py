@@ -331,20 +331,15 @@ def main():
                 plot_heatmap(trial_place_bins, cbar=True,title= create_heatmap_title('Place bins', trial_place_bins), ax=ax)
 
 
-
-                # ax = get_grid_subplot(grid, slice(1,3), slice(3,5))
-                # plot_heatmap(trial_place_bins, cbar=True,title= create_heatmap_title('Place bins', trial_place_bins), ax=ax)
                 name = filename+'_U'+str(unit_ind).zfill(2)
                 save_figure(name + '.pdf', reports_folder, close=True)
-            #save_figure(grid, PATHS['REPORTS'] / filename / ('U' + str(unit_ind).zfill(2) + '.pdf'))
-            #save_json(results, PATHS['RESULTS'] / name / ('U' + str(unit_ind).zfill(2) + '.json'))
+
             except Exception as excp:
 
                 catch_error(UNITS['CONTINUE_ON_FAIL'], name, results_folder / 'zFailed',
                                 RUN['VERBOSE'], 'issue running unit #: \t{}')
 
-        # Close NWB file
-        #io.close()
+
 
     print_status(RUN['VERBOSE'], '\n\nCOMPLETED UNIT ANALYSES\n\n', 0)
 

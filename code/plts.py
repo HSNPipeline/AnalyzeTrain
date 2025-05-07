@@ -113,3 +113,84 @@ def plot_percentages(steps,percentages,ax= None,**plt_kwargs):
     ax.plot(steps,percentages,**plt_kwargs)
     
 
+@set_plt_kwargs
+def plot_raster_with_tuning_curve(data, index, num_trials=64,
+                                 raster_color='k', curve_color='red', sem_alpha=0.3, ax=None, **plt_kwargs):
+    """
+    Create a raster plot with tuning curve for a specific neuron.
+    
+    Parameters:
+    -----------
+    data : DataFrame
+        DataFrame containing spike data and analysis results
+    index : int
+        Index of the neuron to plot
+    num_trials : int, optional
+        Number of trials to plot (default: 64)
+    raster_color : str or color, optional
+        Color for raster plot dots (default: 'k')
+    curve_color : str or color, optional
+        Color for tuning curve line (default: 'red')
+    sem_alpha : float, optional
+        Alpha transparency for SEM shading (default: 0.3)
+    ax : matplotlib.axes.Axes, optional
+        Axes to plot on. If None, a new figure and axes will be created.
+    **plt_kwargs : dict
+        Additional keyword arguments to pass to the plot function
+        
+    Returns:
+    --------
+    ax, ax2 : matplotlib axes objects
+    """
+    spike_position = data['spike_position'].iloc[index]
+    trial_changes = data['trial_changes'].iloc[index]
+
+    F = data['place_anova'].iloc[index]
+    SI = data['place_info'].iloc[index]
+    n_bins = np.linspace(0, 1, 41)  # Reset to 0-1 percentage range
+
+    place_bins = np.array(data['place_bins'].iloc[index])
+    sem = np.array(data['place_sem'].iloc[index])
+
+    # Create axes if not provided
+    ax = check_ax(ax, figsize=plt_kwargs.pop('figsize', None))
+    ax2 = ax.twinx()  # Create a second y-axis sharing the same x-axis
+    
+    # Move the second y-axis to the left side
+    ax2.yaxis.set_label_position('left')
+    ax2.yaxis.tick_left()
+    
+    # Plot raster
+    spikes_positions_trials = {}
+    for num_trial in range(num_trials):
+        # Define trial indices
+        trial_idx = [0, *trial_changes, len(spike_position)]
+        
+        # Extract spike positions for this trial
+        if num_trial < len(trial_idx) - 1:
+            trial_start = trial_idx[num_trial]
+            trial_end = trial_idx[num_trial + 1]
+            spikes_positions_trials[num_trial] = spike_position[trial_start:trial_end]
+            
+            # Plot spike positions for this trial
+            if len(spikes_positions_trials[num_trial]) > 0:
+                ax.plot(spikes_positions_trials[num_trial], 
+                        [num_trial + 1] * len(spikes_positions_trials[num_trial]), 
+                        '.', color=raster_color, markersize=5,alpha=0.3)
+    
+    # Configure axes
+    ax.set_yticklabels([])
+    ax.set_yticks([])
+    ax2.set_xticklabels([])
+    ax2.set_xticks([])
+    ax2.set_ylabel('')
+    
+    # Plot tuning curve
+    ax2.plot(n_bins[:-1], place_bins, color=curve_color, linewidth=4, label='Mean Value')
+    ax2.fill_between(n_bins[:-1], place_bins - sem, place_bins + sem, color=curve_color, alpha=sem_alpha)
+    ax2.set_title(f'F = {F:.2f}, SI = {SI:.2f}',fontsize = 20)
+    # Clean up spines
+    drop_spines(['top', 'right', 'bottom'], ax=ax)
+    drop_spines(['top', 'right'], ax=ax2)
+    
+    return ax, ax2
