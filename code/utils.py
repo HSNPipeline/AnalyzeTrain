@@ -1,19 +1,15 @@
 """Local utility functions."""
 import numpy as np
 import pandas as pd
-from scipy.stats import spearmanr, ttest_ind
+
 from scipy import signal
 from scipy.ndimage import label
-from convnwb.io import load_nwbfile
 
-#from spiketools.utils.data import make_row_orientation
-from spiketools.utils.epoch import epoch_spikes_by_range,epoch_data_by_time, epoch_data_by_range
-from spiketools.utils.extract import (get_range, get_values_by_times,
-                                      get_value_by_time,get_inds_by_times,get_values_by_time_range)
-from spiketools.utils.base import count_elements
+from spiketools.utils.epoch import  epoch_data_by_range
+from spiketools.utils.extract import (get_inds_by_times,get_values_by_time_range)
 from spiketools.utils.trials import recombine_trial_data
 from spiketools.utils.checks import check_axis
-from spiketools.spatial.distance import compute_distance, get_closest_position
+from spiketools.spatial.distance import  get_closest_position
 
 ###################################################################################################
 ###################################################################################################
@@ -176,84 +172,6 @@ def circular_shuffle_unit_fr(units_fr, n_shuffles=1000):
         
     return shuffled
 
-# def get_significant_percentage(stats_vals,p_vals,increment,threshold = 0.05):
-
-#     ## Calculate the number of steps
-#     # Remove NaN values
-#     valid_mask = ~np.isnan(stats_vals)
-#     stats_vals = stats_vals[valid_mask]
-#     p_vals = p_vals[valid_mask]
-    
-#     max_value = int(np.max(stats_vals))+1
-#     n_step = int(max_value/increment)
-#     categories = []
-#     significant_percentages = []
-#     for i in range(n_step):
-#         lower_bound = i*increment
-#         upper_bound = (i+1)*increment
-
-#         # Find indices and compute percentage of significant p values
-#         indx_in_category = np.where((stats_vals >=lower_bound)& (stats_vals < upper_bound))[0]
-#         if len(indx_in_category) > 0:
-#             p_vals_in_category = p_vals[indx_in_category]
-#             significant_p_vals = p_vals_in_category[p_vals_in_category<threshold]
-
-#             n_significant_p_vals = len(significant_p_vals)
-#             significant_percentage = (n_significant_p_vals / len(p_vals_in_category)) * 100
-#             category = upper_bound
-#         else:
-#             significant_percentage = None
-#             category = None
-        
-#         significant_percentages.append(significant_percentage)
-#         categories.append(category)
-#     return categories,significant_percentages
-
-
-def get_agreement_percentage(stats, p_values1, p_values2, increment=0.2,threshold = 0.05):
-    """
-    Calculate the percentage of agreement between two sets of p-values.
-    """
-    # Remove NaN values
-    valid_mask = ~np.isnan(stats)
-    stats = stats[valid_mask]
-    p_values1 = p_values1[valid_mask]
-    p_values2 = p_values2[valid_mask]
-
-    if len(stats) == 0:
-        return [], [], [], []
-
-    max_value = int(np.max(stats)) + 1
-    num_steps = int(max_value / increment)
-    categories = []
-    agreement_percentages = []
-    significant_percentages = []
-    not_significant_percentages  = []
-
-    for i in range(num_steps):  # Loop over increments
-        lower_bound = i * increment
-        upper_bound = (i + 1) * increment
-        categories.append(upper_bound)
-        indices_in_category = np.where((stats >= lower_bound) & (stats < upper_bound))[0]
-
-        if len(indices_in_category) > 0:
-            p_values1_in_category = p_values1[indices_in_category]
-            p_values2_in_category = p_values2[indices_in_category]
-
-            significant_indices = (p_values1_in_category < threshold) & (p_values2_in_category < threshold)
-            not_significant_indices = (p_values1_in_category > threshold) & (p_values2_in_category > threshold)
-
-            n_agree = np.sum(significant_indices)+np.sum(not_significant_indices)  # Count significant values
-
-            # Calculate percentage
-            agreement_percentages.append(n_agree / len(indices_in_category) * 100)
-            significant_percentages.append(np.sum(significant_indices) / len(indices_in_category) * 100)
-            not_significant_percentages.append(np.sum(not_significant_indices) / len(indices_in_category) * 100)
-        else:
-            agreement_percentages.append(None)
-            significant_percentages.append(None)
-            not_significant_percentages.append(None)
-    return categories, agreement_percentages, significant_percentages, not_significant_percentages
 
 def find_place_field(rate_map, place_field_thresh=0.5, noise_thresh=0.5):
     """
