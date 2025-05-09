@@ -1,11 +1,33 @@
-# Analysis Notebooks
+### `00_PlaceCells.ipynb`
 
-The following notebooks step through analysis of the XX data.
+**Description**:
+Performs core place cell detection using spatial information scores and ANOVA F-statistics. Includes permutation-based significance testing and visualization of spatial tuning across trials and spatial bins.
 
-### 00-DataChecks
+---
 
-This notebook loads an example data file and does some basic data checks.
+### `01_Effect_of_Smoothing.ipynb`
 
-### 0X-AnalysisTitle
+**Description**:
+Examines how different spatial and temporal smoothing parameters affect place cell detection metrics. Compares raw vs. smoothed firing rate maps and evaluates the stability of tuning estimates.
 
-This notebook examines ...
+---
+
+### `02_Feature_Estimate.ipynb`
+
+**Description**:
+Extracts and computes features for each unit, such as peak firing rate, trial-level tuning consistency, place field width, and number of detected fields. Prepares data for downstream analyses like PCA or clustering.
+
+---
+
+### `REPORT_SESSION.ipynb`
+
+**Description**:
+Generates session-level summary reports including behavioral coverage, unit counts, recording duration, and overall place cell statistics for quality control and reproducibility.
+
+---
+
+### `REPORT_UNIT_QUALITY.ipynb`
+
+**Description**:
+Assesses unit isolation quality and stability across time. Includes metrics such as waveform consistency, ISI violations, and firing rate stability, supporting exclusion of low-quality units.
+
