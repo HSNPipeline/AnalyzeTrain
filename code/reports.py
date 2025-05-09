@@ -24,160 +24,149 @@ def create_sess_str(session):
 import numpy as np
 
 from spiketools.measures.spikes import compute_firing_rate
-from spiketools.utils.timestamps import convert_sec_to_min
+
 
 # ###################################################################################################
 # ###################################################################################################
 
-# ## GROUP
+## GROUP
+def get_significant_percentage(stats, p, increment, threshold=0.05):
+    """
+    Calculate percentage of significant values within binned ranges.
+    
+    Parameters:
+    -----------
+    stats : array-like
+        Values to be binned (e.g., spatial information scores)
+    p : array-like
+        Corresponding p-values
+    increment : float
+        Bin size
+    threshold : float, default=0.05
+        Significance threshold
+        
+    Returns:
+    --------
+    bin_centers : list
+        Center of each bin (None if bin is empty)
+    significant_percentages : list
+        Percentage of significant values per bin (None if bin is empty)
+    bin_edges : list
+        Edges of each bin
+    """
+    # Remove NaN values
+    mask = ~np.isnan(stats)
+    stats = stats[mask]
+    p = p[mask]
+    
+    max_val = int(np.max(stats)) + 1
+    n_bins = int(max_val / increment)
+    
+    bin_centers = []
+    sig_pct = []
+    
+    for i in range(n_bins):
+        lower = i * increment
+        upper = (i + 1) * increment
+        center = lower + (increment / 2)
 
-# def create_group_info(summary):
-#     """Create a dictionary of group information."""
+        # Find values in this bin
+        in_bin = np.where((stats >= lower) & (stats < upper))[0]
+        
+        if len(in_bin) > 0:
+            p_in_bin = p[in_bin]
+            sig_count = np.sum(p_in_bin < threshold)
+            percentage = (sig_count / len(in_bin)) * 100
+            bin_centers.append(center)
+        else:
+            percentage = None
+            bin_centers.append(None)
 
-#     group_info = {}
-#     group_info['n_subjects'] = len(set([el.split('-')[0] for el in summary['ids']]))
-#     group_info['n_sessions'] = len(summary['ids'])
+        sig_pct.append(percentage)
+    
+    return bin_centers, sig_pct
 
-#     return group_info
-
-
-# def create_group_str(group_info):
-#     """Create a string representation of the group information."""
-
-#     string = '\n'.join([
-#         'Number of subjects:    {:10d}'.format(group_info['n_subjects']),
-#         'Number of sessions:    {:10d}'.format(group_info['n_sessions']),
-#     ])
-
-#     return string
-
-# def create_group_sessions_str(summary):
-#     """Create strings of detailed session information."""
-
-#     out = []
-#     strtemp = "{}: Neural -{:3d} units | Behav - {:3d} trials, {:3.0f}% alternation, avg error: {:5.2f}"
-#     for ind in range(len(summary['ids'])):
-#         out.append(strtemp.format(summary['ids'][ind],
-#                                   summary['n_units'][ind],
-#                                   summary['n_trials'][ind],
-#                                   summary['alternation'][ind] * 100,
-#                                   summary['error'][ind]))
-
-#     return out
-
-
-# ## SESSION
-
-# def create_subject_info(nwbfile):
-#     """Create a dictionary of subject information."""
-
-#     subject_info = {}
-
-#     st = nwbfile.intervals['trials'][0]['start_time'].values[0]
-#     en = nwbfile.intervals['trials'][-1]['stop_time'].values[0]
-
-#     subject_info['n_units'] = len(nwbfile.units)
-#     subject_info['n_trials'] = len(nwbfile.intervals['trials'])
-#     subject_info['subject_id'] = nwbfile.subject.subject_id
-#     subject_info['session_id'] = nwbfile.session_id
-#     subject_info['trials_start'] = st
-#     subject_info['trials_end'] = en
-#     subject_info['session_length'] = float(convert_sec_to_min(en))
-
-#     return subject_info
-
-
-# def create_subject_str(subject_info):
-#     """Create a string representation of the subject / session information."""
-
-#     string = '\n'.join([
-#         'Recording:  {:5s}'.format(subject_info['session_id']),
-#         'Number of units:    {:10d}'.format(subject_info['n_units']),
-#         'Number of trials:   {:10d}'.format(subject_info['n_trials']),
-#         'Session length:     {:.2f}'.format(subject_info['session_length'])
-#     ])
-
-#     return string
-
-
-# def create_position_str(bins, occ, chests):
-#     """Create a string representation of position information."""
-
-#     string = '\n'.join([
-#         'Position bins: {:2d}, {:2d}'.format(*bins),
-#         'Median occupancy: {:2.4f}'.format(np.nanmedian(occ)),
-#         'Min / Max occupancy:  {:2.4f}, {:2.4f}'.format(np.nanmin(occ), np.nanmax(occ)),
-#         'Left chest location: {:2.2f}, {:2.2f}'.format(*chests['left']),
-#         'Right chest location: {:2.2f}, {:2.2f}'.format(*chests['right']),
-#     ])
-
-#     return string
-
-
-# def create_behav_info(behav):
-#     """Create a dictionary of session behaviour information."""
-
-#     behav_info = {}
-
-#     behav_info['n_trials'] = len(behav)
-#     behav_info['n_encoding'] = sum(behav['trial_type'] == 'encoding')
-#     behav_info['n_retrieval'] = sum(behav['trial_type'] == 'retrieval')
-#     behav_info['complete_session'] = len(behav) == 36
-
-#     turn_counts_tot = behav.turn_correctness.value_counts()
-#     behav_info['turn_correct'] = turn_counts_tot.get('True', 0)
-#     behav_info['turn_total'] = turn_counts_tot.get('True', 0) + turn_counts_tot.get('False', 0)
-
-#     cp_split = behav.groupby('trial_type')['turn_correctness'].value_counts()
-#     cp_enc = cp_split.get('encoding')
-#     cp_ret = cp_split.get('retrieval')
-
-#     enc_true = cp_enc.get('True', 0) if cp_enc is not None else 0
-#     enc_total = cp_enc.sum() if cp_enc is not None else 0
-#     ret_true = cp_ret.get('True', 0) if cp_ret is not None else 0
-#     ret_total = cp_ret.sum() if cp_ret is not None else 0
-
-#     behav_info['cp_enc_cor'] = enc_true
-#     behav_info['cp_enc_tot'] = enc_total
-#     behav_info['cp_ret_cor'] = ret_true
-#     behav_info['cp_ret_tot'] = ret_total
-
-#     behav_info['cp_enc_perc'] = (enc_true / enc_total) if enc_total > 0 else 0
-#     behav_info['cp_ret_perc'] = (ret_true / ret_total) if ret_total > 0 else 0
-
-#     behav_info['n_responses'] = len(behav['button_press_time'].dropna())
-#     behav_info['err_all'] = behav.groupby(['turn_correctness'])['error'].mean()['True']
-
-#     err_sides = behav[behav.turn_correctness == 'True'].\
-#         groupby(['correct_direction'])['error'].mean()
-#     behav_info['err_left'] = err_sides['left']
-#     behav_info['err_right'] = err_sides['right']
-
-#     return behav_info
-
-
-# def create_behav_str(behav_info):
-#     """Create a string representation of behavioural performance.
-#     This includes measures of choice point turns and of retrieval trial performance."""
-
-#     string = '\n'.join([
-#         'Completed all trials: {}'.format(str(behav_info['complete_session'])),
-#         'Choice point - correct turns: {} / {} ({:5.2%})'.format(\
-#             behav_info['turn_correct'], behav_info['turn_total'],
-#             behav_info['turn_correct'] / behav_info['turn_total']),
-#         '    encoding : {} / {} ({:5.2%})'.format(\
-#             behav_info['cp_enc_cor'], behav_info['cp_enc_tot'], behav_info['cp_enc_perc']),
-#         '    retrieval: {} / {} ({:5.2%})'.format(\
-#             behav_info['cp_ret_cor'], behav_info['cp_ret_tot'], behav_info['cp_ret_perc']),
-#         'Number of retrieval responses: ({} / {})'.format(\
-#             behav_info['n_responses'], behav_info['n_retrieval']),
-#         'Retrieval error (correct turn): {:4.2f}'.format(behav_info['err_all']),
-#         '    left : {:5.2f}'.format(behav_info['err_left']),
-#         '    right: {:5.2f}'.format(behav_info['err_right']),
-
-#     ])
-
-#     return string
+def get_agreement_percentage(stats, p_values1, p_values2, increment=0.2, threshold=0.05):
+    """
+    Calculate the percentage of agreement between two sets of p-values across binned statistic values.
+    
+    This function bins the statistic values and calculates three types of agreement percentages:
+    1. Overall agreement (both significant or both not significant)
+    2. Agreement on significance (both p-values below threshold)
+    3. Agreement on non-significance (both p-values above threshold)
+    
+    Parameters:
+    -----------
+    stats : array-like
+        Statistical values to bin
+    p_values1 : array-like
+        First set of p-values corresponding to stats
+    p_values2 : array-like
+        Second set of p-values corresponding to stats
+    increment : float, default=0.2
+        Size of each bin
+    threshold : float, default=0.05
+        Significance threshold for p-values
+        
+    Returns:
+    --------
+    bin_centers : list
+        Upper bound of each bin (used as bin center)
+    agree_pct : list
+        Percentage of overall agreement per bin (None if bin is empty)
+    sig_pct : list
+        Percentage of agreement on significance per bin (None if bin is empty)
+    not_sig_pct : list
+        Percentage of agreement on non-significance per bin (None if bin is empty)
+    """
+    # Remove NaN values
+    mask = ~np.isnan(stats)
+    stats = stats[mask]
+    p_values1 = p_values1[mask]
+    p_values2 = p_values2[mask]
+    
+    if len(stats) == 0:
+        return [], [], [], []
+    
+    max_val = int(np.max(stats)) + 1
+    n_bins = int(max_val / increment)
+    
+    bin_centers = []
+    agree_pct = []
+    sig_pct = []
+    not_sig_pct = []
+    
+    for i in range(n_bins):
+        lower = i * increment
+        upper = (i + 1) * increment
+        center = upper  # Using upper bound as the bin center
+        bin_centers.append(center)
+        
+        # Find values in this bin
+        in_bin = np.where((stats >= lower) & (stats < upper))[0]
+        
+        if len(in_bin) > 0:
+            p1_in_bin = p_values1[in_bin]
+            p2_in_bin = p_values2[in_bin]
+            
+            # Calculate agreements
+            both_sig = (p1_in_bin < threshold) & (p2_in_bin < threshold)
+            both_not_sig = (p1_in_bin >= threshold) & (p2_in_bin >= threshold)
+            
+            # Total agreement percentage
+            n_agree = np.sum(both_sig) + np.sum(both_not_sig)
+            agree_percentage = (n_agree / len(in_bin)) * 100
+            
+            # Store percentages
+            agree_pct.append(agree_percentage)
+            sig_pct.append((np.sum(both_sig) / len(in_bin)) * 100)
+            not_sig_pct.append((np.sum(both_not_sig) / len(in_bin)) * 100)
+        else:
+            agree_pct.append(None)
+            sig_pct.append(None)
+            not_sig_pct.append(None)
+    
+    return bin_centers, agree_pct, sig_pct, not_sig_pct
 
 
 ## UNIT

@@ -176,38 +176,38 @@ def circular_shuffle_unit_fr(units_fr, n_shuffles=1000):
         
     return shuffled
 
-def get_significant_percentage(stats_vals,p_vals,increment,threshold = 0.05):
+# def get_significant_percentage(stats_vals,p_vals,increment,threshold = 0.05):
 
-    ## Calculate the number of steps
-    # Remove NaN values
-    valid_mask = ~np.isnan(stats_vals)
-    stats_vals = stats_vals[valid_mask]
-    p_vals = p_vals[valid_mask]
+#     ## Calculate the number of steps
+#     # Remove NaN values
+#     valid_mask = ~np.isnan(stats_vals)
+#     stats_vals = stats_vals[valid_mask]
+#     p_vals = p_vals[valid_mask]
     
-    max_value = int(np.max(stats_vals))+1
-    n_step = int(max_value/increment)
-    categories = []
-    significant_percentages = []
-    for i in range(n_step):
-        lower_bound = i*increment
-        upper_bound = (i+1)*increment
+#     max_value = int(np.max(stats_vals))+1
+#     n_step = int(max_value/increment)
+#     categories = []
+#     significant_percentages = []
+#     for i in range(n_step):
+#         lower_bound = i*increment
+#         upper_bound = (i+1)*increment
 
-        # Find indices and compute percentage of significant p values
-        indx_in_category = np.where((stats_vals >=lower_bound)& (stats_vals < upper_bound))[0]
-        if len(indx_in_category) > 0:
-            p_vals_in_category = p_vals[indx_in_category]
-            significant_p_vals = p_vals_in_category[p_vals_in_category<threshold]
+#         # Find indices and compute percentage of significant p values
+#         indx_in_category = np.where((stats_vals >=lower_bound)& (stats_vals < upper_bound))[0]
+#         if len(indx_in_category) > 0:
+#             p_vals_in_category = p_vals[indx_in_category]
+#             significant_p_vals = p_vals_in_category[p_vals_in_category<threshold]
 
-            n_significant_p_vals = len(significant_p_vals)
-            significant_percentage = (n_significant_p_vals / len(p_vals_in_category)) * 100
-            category = upper_bound
-        else:
-            significant_percentage = None
-            category = None
+#             n_significant_p_vals = len(significant_p_vals)
+#             significant_percentage = (n_significant_p_vals / len(p_vals_in_category)) * 100
+#             category = upper_bound
+#         else:
+#             significant_percentage = None
+#             category = None
         
-        significant_percentages.append(significant_percentage)
-        categories.append(category)
-    return categories,significant_percentages
+#         significant_percentages.append(significant_percentage)
+#         categories.append(category)
+#     return categories,significant_percentages
 
 
 def get_agreement_percentage(stats, p_values1, p_values2, increment=0.2,threshold = 0.05):
