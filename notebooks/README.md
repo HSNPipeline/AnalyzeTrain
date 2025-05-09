@@ -8,8 +8,7 @@ Performs core place cell detection using spatial information scores and ANOVA F-
 ### `01_Effect_of_Smoothing.ipynb`
 
 **Description**:
-Examines how different spatial and temporal smoothing parameters affect place cell detection metrics. Compares raw vs. smoothed firing rate maps and evaluates the stability of tuning estimates.
-
+Examines how different spatial and temporal smoothing parameters affect place cell detection metrics. 
 ---
 
 ### `02_Feature_Estimate.ipynb`
@@ -22,12 +21,12 @@ Extracts and computes features for each unit, such as peak firing rate, trial-le
 ### `REPORT_SESSION.ipynb`
 
 **Description**:
-Generates session-level summary reports including behavioral coverage, unit counts, recording duration, and overall place cell statistics for quality control and reproducibility.
+Generates session-level summary reports including behavioral coverage, unit counts, recording duration, for quality control and reproducibility.
 
 ---
 
 ### `REPORT_UNIT_QUALITY.ipynb`
 
 **Description**:
-Assesses unit isolation quality and stability across time. Includes metrics such as waveform consistency, ISI violations, and firing rate stability, supporting exclusion of low-quality units.
+NWBFile report for unit quality assessment.
 
