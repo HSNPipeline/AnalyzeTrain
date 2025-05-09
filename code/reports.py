@@ -1,6 +1,11 @@
 """Helper functions for creating reports."""
 
 import numpy as np
+import numpy as np
+
+from spiketools.measures.spikes import compute_firing_rate
+
+
 
 ###################################################################################################
 ###################################################################################################
@@ -19,15 +24,6 @@ def create_sess_str(session):
 
     return string
 
-"""Helper functions for creating reports."""
-
-import numpy as np
-
-from spiketools.measures.spikes import compute_firing_rate
-
-
-# ###################################################################################################
-# ###################################################################################################
 
 ## GROUP
 def get_significant_percentage(stats, p, increment, threshold=0.05):
