@@ -1,30 +1,22 @@
 """Run analyses across sessions."""
 
 import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-import os
-from os import path as ospath
-from pathlib import Path
 
-from convnwb.io import load_nwbfile,make_session_name,get_files, save_json
+import matplotlib.pyplot as plt
+
+from convnwb.io import load_nwbfile,get_files
 from convnwb.utils.log import print_status
 from convnwb.io.utils import get_files, file_in_list
 
 from spiketools.measures.spikes import compute_firing_rate
-from spiketools.plts.spatial import plot_position_by_time, plot_position_1d, plot_positions, plot_heatmap,create_heatmap_title
+from spiketools.plts.spatial import plot_position_by_time, plot_position_1d, plot_heatmap,create_heatmap_title
 from spiketools.plts.spikes import plot_firing_rates
-from spiketools.plts.trials import plot_rasters
 
-from spiketools.plts.data import plot_bar, plot_hist, plot_text, plot_barh,plot_lines
-from spiketools.plts.utils import make_axes
+
+from spiketools.plts.data import  plot_hist, plot_text,plot_lines
 from spiketools.plts.annotate import add_hlines, add_vlines
 
-from spiketools.utils.timestamps import convert_sec_to_min, sum_time_ranges
-from spiketools.utils.extract import get_range, get_value_by_time, get_values_by_time_range, drop_range
-from spiketools.utils.epoch import epoch_data_by_range
-from spiketools.utils.data import compute_range
-from spiketools.utils.base import count_elements
+from spiketools.utils.timestamps import convert_sec_to_min
 from spiketools.plts.utils import make_grid, get_grid_subplot
 
 from spiketools.utils.timestamps import convert_sec_to_min
@@ -36,10 +28,9 @@ from settings import RUN, PATHS
 # Local imports
 import sys
 sys.path.append('../code')
-from plts import plot_task_structure,plot_positions_with_speed
+from plts import plot_positions_with_speed
 from utils import group_array_by_key
 from reports import create_sess_str
-from group import get_all_session_paths
 
 ###################################################################################################
 ###################################################################################################
@@ -174,9 +165,6 @@ def main():
         plt.savefig(f'/Users/weijiazhang/Data/Train/report/session_report/{nwbfilename}_report.pdf')
 
 
-        # Save out the report
-#         save_figure('session_report_' + subject_info['session_id'] + '.pdf',
-#                     PATHS['REPORTS'] / 'session', close=True)
 
         # Close the nwbfile
         io.close()

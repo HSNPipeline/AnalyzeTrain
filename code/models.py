@@ -1,7 +1,6 @@
-import numpy as np
 from functools import partial
-from spiketools.stats.anova import create_dataframe, create_dataframe_bins, fit_anova
-from spiketools.spatial.information import compute_spatial_information
+from spiketools.stats.anova import create_dataframe_bins, fit_anova
+
 ###################################################################################################
 ###################################################################################################
 PLACE_MODELS = {

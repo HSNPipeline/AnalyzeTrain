@@ -5,21 +5,19 @@ import matplotlib.pyplot as plt
 
 
 
-from spiketools.plts.utils import check_ax, get_kwargs, savefig
-from spiketools.plts.settings import SET_KWARGS, OTHER_KWARGS
+from spiketools.plts.utils import check_ax
 from spiketools.plts.style import set_plt_kwargs
 
 
 from spiketools.plts.task import plot_task_structure as _plot_task_structure
 from spiketools.plts.trials import plot_rasters
 from spiketools.plts.data import plot_barh
-from spiketools.plts.spatial import plot_position_by_time,plot_heatmap,create_heatmap_title
-from spiketools.plts.utils import check_ax, savefig, make_grid, get_grid_subplot
+from spiketools.plts.spatial import create_heatmap_title
+from spiketools.plts.utils import check_ax, make_grid, get_grid_subplot
 from spiketools.plts.style import set_plt_kwargs, drop_spines
-from spiketools.plts.annotate import add_vlines, add_box_shades, add_hlines
-from spiketools.plts.spatial import plot_positions, plot_heatmap
-from spiketools.plts.annotate import add_dots
-#from spiketools.utils.data import make_row_orientation, smooth_data, compute_range
+from spiketools.plts.annotate import add_vlines, add_box_shades
+
+
 ###################################################################################################
 ###################################################################################################
 
@@ -99,14 +97,6 @@ def plot_positions_with_speed(raw_ptimes, positions, speed, speed_thresh,ax=None
     ax.set_title('Positions with Speed Threshold')
 
 
-import numpy as np
-import matplotlib.pyplot as plt
-
-
-from spiketools.plts.utils import check_ax, get_kwargs, savefig
-from spiketools.plts.settings import SET_KWARGS, OTHER_KWARGS
-from spiketools.plts.style import set_plt_kwargs
-
 @set_plt_kwargs
 def plot_percentages(steps,percentages,ax= None,**plt_kwargs):
     ax = check_ax(ax,figsize = plt_kwargs.pop('figsize',None))
@@ -157,11 +147,9 @@ def plot_raster_with_tuning_curve(data, index, num_trials=64,
     place_bins = np.array(data['place_bins'].iloc[index])
     sem = np.array(data['place_sem'].iloc[index])
 
-    # Create axes if not provided
+
     ax = check_ax(ax, figsize=plt_kwargs.pop('figsize', None))
-    ax2 = ax.twinx()  # Create a second y-axis sharing the same x-axis
-    
-    # Move the second y-axis to the left side
+    ax2 = ax.twinx() 
     ax2.yaxis.set_label_position('left')
     ax2.yaxis.tick_left()
     
