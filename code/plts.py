@@ -169,7 +169,7 @@ def plot_raster_with_tuning_curve(data, index, num_trials=64,
             if len(spikes_positions_trials[num_trial]) > 0:
                 ax.plot(spikes_positions_trials[num_trial], 
                         [num_trial + 1] * len(spikes_positions_trials[num_trial]), 
-                        '.', color=raster_color, markersize=5,alpha=0.3)
+                        '.', color=raster_color, markersize=5,alpha=0.8)
     
     # Configure axes
     ax.set_yticklabels([])
@@ -181,7 +181,7 @@ def plot_raster_with_tuning_curve(data, index, num_trials=64,
     # Plot tuning curve
     ax2.plot(n_bins[:-2], place_bins[:-1], color=curve_color, linewidth=4, label='Mean Value')
     ax2.fill_between(n_bins[:-2], place_bins[:-1] - sem[:-1], place_bins[:-1] + sem[:-1], color=curve_color, alpha=sem_alpha)
-    #ax2.set_title(f'F = {F:.2f}, SI = {SI:.2f}',fontsize = 30)
+    ax2.set_title(f' SI = {SI:.2f}, F = {F:.2f}')
     # Clean up spines
     drop_spines(['top', 'right', 'bottom'], ax=ax)
     drop_spines(['top', 'right'], ax=ax2)
