@@ -237,3 +237,125 @@ def find_place_location(trial_place_bins, peak_loc, tolerance=3):
     percentage_num_close_to_peak = num_close_to_peak/len(trial_place_bins)
     
     return max_locs, max_values, num_close_to_peak,percentage_num_close_to_peak
+
+
+
+def even_odd_correlation(x):
+    """
+    Calculate the correlation between the average firing rates of even and odd trials.
+    
+    This function splits trials into even and odd numbered trials, averages each group,
+    and computes the correlation between these averages. This measures the consistency
+    of spatial firing patterns across trials.
+    
+    Args:
+        x: List or array of trial firing rates, where each trial contains firing rates
+           across spatial positions
+    
+    Returns:
+        float: Pearson correlation coefficient between even and odd trial averages.
+               Returns np.nan if:
+               - Input has no variance (constant values)
+               - Input contains only NaN values
+               - Less than 2 valid data points after processing
+    """
+    # Convert input to numpy array if it's a list
+    x = np.array(x)
+    
+    # find the even and odd indices    
+    even_indices = np.arange(0, len(x), 2)
+    odd_indices = np.arange(1, len(x), 2)
+    
+    # Split trials into even and odd groups
+    even_trials = np.array([x[i] for i in even_indices])
+    odd_trials = np.array([x[i] for i in odd_indices])
+    
+    # Calculate mean firing rate for each position across even/odd trials
+    even_avg = np.mean(even_trials, axis=0)
+    odd_avg = np.mean(odd_trials, axis=0)
+    
+    # Handle cases where there is no variance
+    if np.all(even_avg == even_avg[0]) or np.all(odd_avg == odd_avg[0]):
+        return np.nan
+        
+    # Remove any NaN values
+    mask = ~np.isnan(even_avg) & ~np.isnan(odd_avg)
+    if not np.any(mask):
+        return np.nan
+        
+    even_avg = even_avg[mask]
+    odd_avg = odd_avg[mask]
+    
+    # Compute correlation only if we have enough valid data points
+    if len(even_avg) < 2:
+        return np.nan
+        
+    # Calculate Pearson correlation between even and odd trial averages
+    correlation = np.corrcoef(even_avg, odd_avg)[0,1]
+    return correlation
+
+def even_odd_correlation(x):
+    """
+    Calculate the correlation between the average firing rates of even and odd trials.
+    
+    This function splits trials into even and odd numbered trials, averages each group,
+    and computes the correlation between these averages. This measures the consistency
+    of spatial firing patterns across trials.
+    
+    Args:
+        x: List or array of trial firing rates, where each trial contains firing rates
+           across spatial positions
+    
+    Returns:
+        float: Pearson correlation coefficient between even and odd trial averages.
+               Returns np.nan if:
+               - Input has no variance (constant values)
+               - Input contains only NaN values
+               - Less than 2 valid data points after processing
+    """
+    # Convert input to numpy array if it's a list
+    x = np.array(x)
+    
+    # find the even and odd indices    
+    even_indices = np.arange(0, len(x), 2)
+    odd_indices = np.arange(1, len(x), 2)
+    
+    # Split trials into even and odd groups
+    even_trials = np.array([x[i] for i in even_indices])
+    odd_trials = np.array([x[i] for i in odd_indices])
+    
+    # Calculate mean firing rate for each position across even/odd trials
+    even_avg = np.mean(even_trials, axis=0)
+    odd_avg = np.mean(odd_trials, axis=0)
+    
+    # Handle cases where there is no variance
+    if np.all(even_avg == even_avg[0]) or np.all(odd_avg == odd_avg[0]):
+        return np.nan
+        
+    # Remove any NaN values
+    mask = ~np.isnan(even_avg) & ~np.isnan(odd_avg)
+    if not np.any(mask):
+        return np.nan
+        
+    even_avg = even_avg[mask]
+    odd_avg = odd_avg[mask]
+    
+    # Compute correlation only if we have enough valid data points
+    if len(even_avg) < 2:
+        return np.nan
+        
+    # Calculate Pearson correlation between even and odd trial averages
+    correlation = np.corrcoef(even_avg, odd_avg)[0,1]
+    return correlation
+
+
+
+def compute_trial_place_bins(trial_bin, pos_bin, units_fr, edges_trial, edges_pos, trial_occupancy, epochSize):
+    """ Compute non-smoothed firing rates """
+    trial_spikes = np.zeros((len(edges_trial)-1, len(edges_pos)-1))
+    for t, p, f in zip(trial_bin, pos_bin, units_fr):
+        if t > 0 and t <= len(edges_trial)-1 and p > 0 and p <= len(edges_pos)-1:
+            trial_spikes[t-1, p-1] += f * epochSize
+    trial_fr = trial_spikes/trial_occupancy
+    
+    return  trial_fr
