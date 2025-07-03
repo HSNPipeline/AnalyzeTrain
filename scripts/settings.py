@@ -65,8 +65,6 @@ PLACE_METHODS = ['ANOVA','INFO']
 METHODS = {
 'PLACE': PLACE_METHODS,
 'PLACE_FR': PLACE_METHODS
-
-
 }
 
 ###################################################################################################
@@ -74,9 +72,22 @@ METHODS = {
 ## SPATIAL BIN SETTINGS
 
 PLACE_BINS = 40
-# DISTANCE_BINS = [47]
-# NBINS_STEM = 4
-# STEM_BIN_RANGE = [-131, -35]
+
+INCREMENT = {
+    'INFO': .1,
+    'ANOVA': .1,
+}
+
+## EXCLUSION CRITERIA
+
+EXCLUSION = {
+   'RATE_MAX':  20,
+   'RATE_MIN': 0.15,
+   'N_SPIKES': 50,
+   'N_TRIAL': 15,
+   'TOTAL_PRESENCE_RATIO': .1
+
+}
 
 BINS = {
     'place' : PLACE_BINS,
@@ -85,12 +96,7 @@ BINS = {
 #     'stem_bin_range' : STEM_BIN_RANGE,
 }
 
-EXCLUSION = {
-    'zscore': 3.29
-
-}
 ## OCCUPANCY & PLACE BIN SETTINGS
-
 OCC_MINIMUM = .1
 OCC_SETNAN = True
 
