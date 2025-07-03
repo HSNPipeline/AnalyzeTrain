@@ -4,16 +4,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-
-from spiketools.plts.utils import check_ax
-from spiketools.plts.style import set_plt_kwargs
+from spiketools.plts.utils import check_ax, savefig
+from spiketools.plts.style import set_plt_kwargs, drop_spines
 
 from spiketools.plts.task import plot_task_structure as _plot_task_structure
 from spiketools.plts.trials import plot_rasters
 from spiketools.plts.data import plot_barh
 from spiketools.plts.spatial import create_heatmap_title
 from spiketools.plts.utils import check_ax, make_grid, get_grid_subplot
-from spiketools.plts.style import set_plt_kwargs, drop_spines
 from spiketools.plts.annotate import add_vlines, add_box_shades
 
 
@@ -186,3 +184,146 @@ def plot_raster_with_tuning_curve(data, index, num_trials=64,
     drop_spines(['top', 'right'], ax=ax2)
     
     return ax, ax2
+
+
+
+
+
+@savefig
+@set_plt_kwargs
+def plot_pca_scatter(
+    pca_result,
+    color_info=None,
+    cmap=None,
+    vmin=None,
+    vmax=None,
+    s=1,
+    alpha=.5,
+    colorbar_label=None,
+    ax=None,
+    color_bar=True,
+    drop_spine=True,
+    color=None,
+    **plt_kwargs
+):
+    """
+    Plot a 2D PCA scatter plot.
+
+    Parameters
+    ----------
+    pca_result : array-like, shape (n_samples, 2)
+        PCA-transformed data (PC1, PC2).
+    color_info : array-like or None, optional
+        Values for coloring points.
+    cmap : str or Colormap, optional
+        Colormap for points.
+    vmin, vmax : float, optional
+        Colormap normalization.
+    s : float, optional
+        Point size.
+    alpha : float, optional
+        Point transparency.
+    colorbar_label : str, optional
+        Colorbar label.
+    ax : matplotlib.axes.Axes, optional
+        Axis to plot on.
+    color_bar : bool, optional
+        Show colorbar.
+    drop_spine : bool, optional
+        Remove top/right spines.
+    color : color, optional
+        Color for all points.
+    **plt_kwargs
+        Extra arguments for scatter.
+    Returns
+    -------
+    ax : matplotlib.axes.Axes
+        The axis with the PCA scatter plot.
+    """
+    ax = check_ax(ax, figsize=plt_kwargs.pop('figsize', None))
+    # Determine color argument
+    if color is not None:
+        scatter = ax.scatter(pca_result[:, 0], pca_result[:, 1], color=color, s=s, alpha=alpha, **plt_kwargs)
+    else:
+        c = color_info if color_info is not None else 'grey'
+        scatter = ax.scatter(
+            pca_result[:, 0], pca_result[:, 1],
+            c=c, cmap=cmap, vmin=vmin, vmax=vmax, s=s, alpha=alpha, **plt_kwargs
+        )
+        if color_bar and cmap is not None and color_info is not None:
+            plt.colorbar(scatter, ax=ax, label=colorbar_label)
+    if drop_spine:
+        drop_spines(['top', 'right'], ax=ax)
+
+
+@savefig
+@set_plt_kwargs
+def plot_feature_arrow(components, feature_name,scale=5, color='red', head_width=.4, head_length=.4, linewidth=1, ax = None, **plt_kwargs):
+    """
+    Plot an arrow for a given feature on the provided axis.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        The axis to plot the arrow on.
+    feature_name : str
+        The name of the feature to plot.
+    components : pd.DataFrame
+        DataFrame containing the PCA components.
+    features : pd.DataFrame
+        DataFrame containing the feature columns.
+    scale : float, optional
+        Scaling factor for the arrow length.
+    color : str, optional
+        Color of the arrow.
+    head_width : float, optional
+        Width of the arrow head.
+    head_length : float, optional
+        Length of the arrow head.
+    linewidth : float, optional
+        Width of the arrow line.
+    **kwargs
+        Additional keyword arguments for ax.arrow.
+    """
+    ax = check_ax(ax, figsize=plt_kwargs.pop('figsize', None))
+    i = components.index.get_loc(feature_name)
+    ax.arrow(
+        0, 0,
+        components.iloc[i, 0] * scale,
+        components.iloc[i, 1] * scale,
+        head_width=head_width,
+        head_length=head_length,
+        fc=color,
+        ec=color,
+        linewidth=linewidth,
+        **plt_kwargs
+    )
+
+
+@savefig
+@set_plt_kwargs
+def plot_feature_color_bars( angles_sorted, FEATURE_COLORS,angles, edge_color = 'None', alpha =1, lw = 1,rect_width=1.0,ax = None, **plt_kwargs):
+    """
+    Plot a row of colored rectangles representing features.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        The axis to plot the rectangles on.
+    angles_sorted : list of tuples
+        Each tuple should be (feature_name, angle_from_12, idx).
+    FEATURE_COLORS : dict
+        Mapping from feature_name to color.
+    rect_width : float, optional
+        Width of each rectangle.
+    """
+    ax = check_ax(ax, figsize=plt_kwargs.pop('figsize', None))
+    ax.axis('off')
+    for j, (feature_name, angles, idx) in enumerate(angles_sorted):
+        rect = plt.Rectangle(
+            (j * rect_width, 0), rect_width, 1.0,
+            color=FEATURE_COLORS[feature_name], edgecolor=edge_color, linewidth=lw, alpha=alpha
+        )
+        ax.add_patch(rect)
+    ax.set_xlim(0, len(angles_sorted) * rect_width)
+    ax.set_ylim(-0.25, 1.0)

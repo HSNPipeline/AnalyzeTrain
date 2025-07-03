@@ -11,7 +11,7 @@ from spiketools.utils.trials import recombine_trial_data
 from spiketools.utils.checks import check_axis
 from spiketools.spatial.distance import  get_closest_position
 
-from pldm_settings import *
+from pldm_settings import PLACE_FIELD_THRESH,PLACE_FIELD_NOISE_THRESH,TOLERANCE
 
 ###################################################################################################
 ###################################################################################################
@@ -175,7 +175,7 @@ def circular_shuffle_unit_fr(units_fr, n_shuffles=1000):
     return shuffled
 
 
-def find_place_field(rate_map, place_field_thresh=PLACE_FIELD_THRESHOLD, noise_thresh=PLACE_FIELD_NOISE_THRESHOLD):
+def find_place_field(rate_map, place_field_thresh=PLACE_FIELD_THRESH, noise_thresh=PLACE_FIELD_NOISE_THRESH):
     """
     Identify contiguous regions of high firing rates above a threshold, and remove noisy regions below a threshold.
     
