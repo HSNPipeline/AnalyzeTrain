@@ -11,6 +11,8 @@ from spiketools.utils.trials import recombine_trial_data
 from spiketools.utils.checks import check_axis
 from spiketools.spatial.distance import  get_closest_position
 
+from pldm_settings import *
+
 ###################################################################################################
 ###################################################################################################
 def group_array_by_key(keys, values):
@@ -173,7 +175,7 @@ def circular_shuffle_unit_fr(units_fr, n_shuffles=1000):
     return shuffled
 
 
-def find_place_field(rate_map, place_field_thresh=0.5, noise_thresh=0.5):
+def find_place_field(rate_map, place_field_thresh=PLACE_FIELD_THRESHOLD, noise_thresh=PLACE_FIELD_NOISE_THRESHOLD):
     """
     Identify contiguous regions of high firing rates above a threshold, and remove noisy regions below a threshold.
     
@@ -215,7 +217,7 @@ def find_place_field(rate_map, place_field_thresh=0.5, noise_thresh=0.5):
     return num_place_field_bins,num_noise_bins, labeled_place_fields, num_place_fields, peak_rate,peak_loc
 
 
-def find_place_location(trial_place_bins, peak_loc, tolerance=3):
+def find_place_location(trial_place_bins, peak_loc, tolerance=TOLERANCE):
     max_locs = []  # List to store the indices of max values
     max_values = []  # List to store the max values
           
