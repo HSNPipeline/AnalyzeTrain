@@ -53,8 +53,8 @@ def main():
     print_status(RUN['VERBOSE'], '\n\nANALYZING UNIT DATA - {}\n\n'.format(RUN['TASK']), 0)
 
     # Define output folders
-    results_folder = PATHS['RESULTS'] / 'units_bins'
-    reports_folder = PATHS['REPORTS'] / 'units_bins'
+    results_folder = PATHS['RESULTS'] / 'units_bins_w_surr'
+    reports_folder = PATHS['REPORTS'] / 'units_bins_w_surr'
    
     os.makedirs(results_folder, exist_ok=True)
     os.makedirs(reports_folder, exist_ok=True)
@@ -145,6 +145,24 @@ def main():
                   
                     df = create_df_place(trial_place_bins[:,:-3])
                     results[f'place_anova_{numBins}']= fit_anova_place(df)
+
+                    PLACE_METHODS = {'PLACE':['ANOVA','INFO']}
+
+                    shuffles = circular_shuffle_unit_fr(units_fr, SURROGATES['n_shuffles'])
+                    surr_analyses = create_methods_list(PLACE_METHODS)
+                    surrs = {analysis : \
+                            np.zeros(SURROGATES['n_shuffles']) for analysis in surr_analyses}
+                    
+                    for ind, shuffle in enumerate(shuffles):
+                        surr_trial_place_bins = compute_trial_place_bins(trial_bin, pos_bin, shuffle, edges_trial, edges_pos, trial_occupancy, epochSize)
+                        surr_place_bins = np.nanmean(surr_trial_place_bins,axis = 0)
+                        surrs['place_info'][ind] = compute_spatial_information(surr_place_bins[:-3], occ[:-3], normalize=False)
+                        df = create_df_place(surr_trial_place_bins[:,:-3])
+                        surrs['place_anova'][ind] = fit_anova_place(df)
+                    for analysis in surr_analyses:
+                        results[analysis + '_surr_p_val_'+str(numBins)], results[analysis + '_surr_z_score'+str(numBins)] = \
+                            compute_surrogate_stats(results[f'{analysis}_{numBins}'], surrs[analysis],title = analysis)
+       
 
                 save_json(results, filename+'_U'+str(unit_ind).zfill(2) +  '.json', folder=results_folder)
 
