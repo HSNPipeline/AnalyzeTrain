@@ -16,8 +16,8 @@ SI_THRESHOLD = 0.25
 ALPHA = 0.05
 
 ##
-PLACE_FIELD_THRESH = .2
-PLACE_FIELD_NOISE_THRESH = .2
+PLACE_FIELD_THRESH = .5
+PLACE_FIELD_NOISE_THRESH = .5
 TOLERANCE = 3 ## number of spatial bins away from the peak location to be considered a place field
 
 ## COLORS

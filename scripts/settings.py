@@ -85,7 +85,7 @@ EXCLUSION = {
    'RATE_MIN': 0.15,
    'N_SPIKES': 50,
    'N_TRIAL': 15,
-   'TOTAL_PRESENCE_RATIO': .1
+   'TOTAL_PRESENCE_RATIO': .2
 
 }
 
