@@ -2,8 +2,8 @@
 
 Repository for analyzing the train task.
 
-[![Data](https://img.shields.io/badge/data-ConvertTrain-lightgrey)](https://github.com/HSUPipeline/ConvertTrain)
-[![Template](https://img.shields.io/badge/template-HSUPipeline/AnalyzeTEMPLATE-yellow.svg)](https://github.com/HSUPipeline/AnalyzeTEMPLATE)
+[![Data](https://img.shields.io/badge/data-ConvertTrain-lightgrey)](https://github.com/HSNPipeline/ConvertTrain)
+[![Template](https://img.shields.io/badge/template-HSNPipeline/AnalyzeTEMPLATE-yellow.svg)](https://github.com/HSNPipeline/AnalyzeTEMPLATE)
 
 ## Overview
 
@@ -15,7 +15,7 @@ This repository requires Python >= 3.7.
 
 As well as typical scientific Python packages, dependencies include:
 - [pynwb](https://github.com/NeurodataWithoutBorders/pynwb)
-- [convnwb](https://github.com/HSUPipeline/convnwb)
+- [convnwb](https://github.com/HSNPipeline/convnwb)
 - [spiketools](https://github.com/spiketools/spiketools)
 
 The full list of dependencies is listed in `requirements.txt`.
@@ -35,5 +35,5 @@ The datasets analyzed in this project are from human subjects with implanted mic
 
 Data notes:
 - Datasets for this project are organized into the [NWB](https://www.nwb.org/) format.
-- Basic preprocessing and data conversion is done in the [ConvertTrain](https://github.com/HSUpipeline/ConvertTrain) repository.
+- Basic preprocessing and data conversion is done in the [ConvertTrain](https://github.com/HSNpipeline/ConvertTrain) repository.
 - Spike sorting, to isolate putative single-neurons, has been performed on this data.
